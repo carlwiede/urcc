@@ -15,7 +15,7 @@ enum Token {
 
 fn main() 
 {
-    lex("cases/week1/return_2.c");
+    lex("cases/week1/multi_digit.c");
 }
 
 // Accept a file
