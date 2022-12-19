@@ -13,11 +13,6 @@ enum Token {
     IntegerLiteral {value: i64},
 }
 
-fn main() 
-{
-    lex("cases/week1/multi_digit.c");
-}
-
 // Accept a file
 // Return list of tokens
 fn lex(file_path: &str)
@@ -38,18 +33,29 @@ fn lex(file_path: &str)
 
     for c in content.chars() {
 
+        // If buffer has accumulated content and lexer runs into
+        // non-letter or non-digit, write buffer to tokens
         if !a_z_num_re.is_match(&c.to_string()) && !buffer.is_empty() {
+            
+            // Buffer contains a keyword
             if buffer == "int"
             || buffer == "return" {
                 tokens.push(Token::Keyword { kind: buffer.clone() });
-            } else if !buffer.parse::<i64>().is_err() {
+            } 
+            
+            // Buffer contains a number
+            else if !buffer.parse::<i64>().is_err() {
                 tokens.push(Token::IntegerLiteral { value: buffer.parse::<i64>().unwrap() })
-            } else {
+            } 
+            
+            // Buffer contains an identifier
+            else {
                 tokens.push(Token::Identifier { name: buffer.clone() });
             }
             buffer.clear();
         }
 
+        // Match every character and add to tokens or buffer
         match c {
             ' ' | '\n' => continue,
             ';' => tokens.push(Token::Semicolon),
@@ -61,6 +67,12 @@ fn lex(file_path: &str)
         }
     }
 
+    // Debug print
     println!("{:?}", tokens);
 
+}
+
+fn main() 
+{
+    lex("cases/week1/multi_digit.c");
 }
