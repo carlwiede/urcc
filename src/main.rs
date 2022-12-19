@@ -1,6 +1,8 @@
 use std::fs;
 use regex::Regex;
 
+
+// Enum to represent the different types of tokens
 #[derive(Debug, Clone)]
 enum Token {
     OpenBrace,
@@ -13,9 +15,24 @@ enum Token {
     IntegerLiteral {value: i64},
 }
 
+// Enum to represent nodes in an Abstract Syntax Tree (AST)
+#[derive(Debug)]
+enum Expr {
+
+}
+
+// Accept a list of tokens
+// Return AST
+fn parse(tokens: Vec<Token>)
+{
+    for t in tokens.iter() {
+        println!("{:?}", t);
+    }
+}
+
 // Accept a file
 // Return list of tokens
-fn lex(file_path: &str)
+fn lex(file_path: &str) -> Vec<Token>
 {
 
     // Load file content to string
@@ -68,11 +85,13 @@ fn lex(file_path: &str)
     }
 
     // Debug print
-    println!("{:?}", tokens);
+    //println!("{:?}", tokens);
+
+    return tokens;
 
 }
 
 fn main() 
 {
-    lex("cases/week1/multi_digit.c");
+    parse(lex("cases/week1/multi_digit.c"));
 }
