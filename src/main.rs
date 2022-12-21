@@ -1,6 +1,6 @@
-use std::fs;
+use std::{fs, process};
+use core::slice::Iter;
 use regex::Regex;
-
 
 // Enum to represent the different types of tokens
 #[derive(Debug, Clone)]
@@ -10,24 +10,145 @@ enum Token {
     OpenParenthesis,
     CloseParenthesis,
     Semicolon,
-    Keyword {kind: String},
-    Identifier {name: String},
-    IntegerLiteral {value: i64},
+    Keyword (String),
+    Identifier (String),
+    IntegerLiteral (i64),
 }
 
-// Enum to represent nodes in an Abstract Syntax Tree (AST)
+// Enums to represent nodes in an Abstract Syntax Tree (AST)
 #[derive(Debug)]
 enum Expr {
+    IntLiteral(i64),
+}
 
+#[derive(Debug)]
+enum Stmt {
+    Return(Expr),
+}
+
+#[derive(Debug)]
+enum Func {
+    Func(String, Stmt),
+}
+
+#[derive(Debug)]
+enum Prog {
+    Prog(Func),
+}
+
+fn parse_expr(mut t: Iter<Token>) -> (Iter<Token>, Expr)
+{
+    match t.next() {
+        Some(Token::IntegerLiteral(val)) => return (t, Expr::IntLiteral(*val)),
+        _ => {
+            println!("parse_expr didn't receive an integer literal, exiting...");
+            process::exit(1);
+        },
+    }
+}
+
+fn parse_statement(mut t: Iter<Token>) -> (Iter<Token>, Stmt)
+{
+    match t.next() {
+        Some(Token::Keyword(val)) => {
+            if val != "return" {
+                println!("expected keyword 'return', but found something else");
+                process::exit(1);  
+            }
+        },
+        _ => {
+            println!("expected keyword 'int', but found something else");
+            process::exit(1);  
+        }
+    }
+
+    let (mut t, expr) = parse_expr(t);
+
+    match t.next() {
+        Some(Token::Semicolon) => (),
+        _ => {
+            println!("expected semicolon, but found something else");
+            process::exit(1);  
+        }
+    }
+
+    return (t, Stmt::Return(expr));
+}
+
+fn parse_function(mut t: Iter<Token>) -> Func
+{
+    let fn_name: String;
+    
+    match t.next() {
+        Some(Token::Keyword(val)) => {
+            if val != "int" {
+                println!("expected keyword 'int', but found something else");
+                process::exit(1);  
+            };
+        },
+        _ => {
+            println!("expected keyword 'int', but found something else");
+            process::exit(1);
+        },
+    }
+
+    match t.next() {
+        Some(Token::Identifier(val)) => fn_name = val.to_string(),
+        _ => {
+            println!("expected function identifier, but found something else");
+            process::exit(1);
+        }
+    }
+
+    match t.next() {
+        Some(Token::OpenParenthesis) => (),
+        _ => {
+            println!("expected open parenthesis, but found something else");
+            process::exit(1);
+        }
+    }
+
+    match t.next() {
+        Some(Token::CloseParenthesis) => (),
+        _ => {
+            println!("expected close parenthesis, but found something else");
+            process::exit(1);
+        }
+    }
+
+    match t.next() {
+        Some(Token::OpenBrace) => (),
+        _ => {
+            println!("expected open brace, but found something else");
+            process::exit(1);
+        }
+    }
+
+    let (mut t, stmt) = parse_statement(t);
+
+    match t.next() {
+        Some(Token::CloseBrace) => (),
+        _ => {
+            println!("expected close brace, but found something else");
+            process::exit(1);
+        }
+    }
+
+    return Func::Func(fn_name, stmt);
+}
+
+fn parse_program(t: Iter<Token>) -> Prog
+{
+    return Prog::Prog(parse_function(t));
 }
 
 // Accept a list of tokens
 // Return AST
 fn parse(tokens: Vec<Token>)
 {
-    for t in tokens.iter() {
-        println!("{:?}", t);
-    }
+    let t: Iter<Token> = tokens.iter();
+    let p: Prog = parse_program(t);
+    println!("{:?}", p);
 }
 
 // Accept a file
@@ -57,17 +178,17 @@ fn lex(file_path: &str) -> Vec<Token>
             // Buffer contains a keyword
             if buffer == "int"
             || buffer == "return" {
-                tokens.push(Token::Keyword { kind: buffer.clone() });
+                tokens.push(Token::Keyword(buffer.clone()));
             } 
             
             // Buffer contains a number
             else if !buffer.parse::<i64>().is_err() {
-                tokens.push(Token::IntegerLiteral { value: buffer.parse::<i64>().unwrap() })
+                tokens.push(Token::IntegerLiteral(buffer.parse::<i64>().unwrap()));
             } 
             
             // Buffer contains an identifier
             else {
-                tokens.push(Token::Identifier { name: buffer.clone() });
+                tokens.push(Token::Identifier(buffer.clone()));
             }
             buffer.clear();
         }
@@ -93,5 +214,5 @@ fn lex(file_path: &str) -> Vec<Token>
 
 fn main() 
 {
-    parse(lex("cases/week1/multi_digit.c"));
+    parse(lex("cases/week1/valid/return_2.c"));
 }
