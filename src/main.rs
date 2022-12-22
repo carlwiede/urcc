@@ -1,4 +1,4 @@
-use std::{fs, process};
+use std::{fs, process, env};
 use core::slice::Iter;
 use regex::Regex;
 
@@ -153,7 +153,7 @@ fn parse(tokens: Vec<Token>)
 
 // Accept a file
 // Return list of tokens
-fn lex(file_path: &str) -> Vec<Token>
+fn lex(file_path: String) -> Vec<Token>
 {
 
     // Load file content to string
@@ -214,5 +214,14 @@ fn lex(file_path: &str) -> Vec<Token>
 
 fn main() 
 {
-    parse(lex("cases/week1/valid/return_2.c"));
+
+    // Not so robust argument reading to automate testing
+    if env::args().len() > 1 {
+        parse(lex(env::args().last().unwrap()));
+    }
+
+    // Allow manual testing
+    else {
+        parse(lex(String::from("cases/week1/valid/return_2.c")));
+    }
 }
