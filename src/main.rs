@@ -215,13 +215,18 @@ fn lex(file_path: String) -> Vec<Token>
 fn main() 
 {
 
+    let path: String;
+
     // Not so robust argument reading to automate testing
     if env::args().len() > 1 {
-        parse(lex(env::args().last().unwrap()));
+        path = env::args().last().unwrap();
     }
 
     // Allow manual testing
     else {
-        parse(lex(String::from("cases/week1/valid/return_2.c")));
+        path = String::from("cases/week1/valid/return_2.c");
     }
+
+    parse(lex(path));
+
 }

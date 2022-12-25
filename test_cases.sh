@@ -10,6 +10,13 @@ caseFolder="cases"
 # Keep track of number of failed tests
 failedTests=0
 
+# Test edge case that no folder name was entered
+if [ "$1" == "" ]; then
+    echo "Please enter case folder name."
+    echo "Example syntax: './test_cases.sh week1'"
+    exit 1
+fi
+
 # Test if folder exists
 if [ -d "${caseFolder}/$1" ]; then
 
