@@ -1,4 +1,4 @@
-use std::{fs, process, env};
+use std::{fs, process, env, io::Write};
 use core::slice::Iter;
 use regex::Regex;
 
@@ -150,7 +150,7 @@ fn parse(tokens: Vec<Token>) -> Prog
     let p: Prog = parse_program(t);
     
     // Debug
-    // println!("{:?}", p);
+    println!("{:?}", p);
 
     p
 }
@@ -210,10 +210,27 @@ fn lex(file_path: String) -> Vec<Token>
     }
 
     // Debug print
-    //println!("{:?}", tokens);
+    println!("{:?}", tokens);
 
     return tokens;
 
+}
+
+// Produce x86 assembly from the program
+fn produce_assembly(p: Prog) -> std::io::Result<()>
+{
+    let Prog::Prog(f) = p;
+    let Func::Func(f_name, stmt) = f;
+    let Stmt::Return(expr) = stmt;
+    let Expr::IntLiteral(ret_val) = expr;
+
+    let mut file = fs::File::create("assembly.s")?;
+    file.write_all(format!(".globl {f_name}\n").as_bytes()).expect("Failed to write .globl");
+    file.write_all(format!("{f_name}:\n").as_bytes()).expect("Failed to write identifier");
+    file.write_all(format!("\tmov\t${ret_val}, %rax\n").as_bytes()).expect("Failed to write movl");
+    file.write_all(format!("\tret\n").as_bytes()).expect("Failed to write ret");
+
+    Ok(())
 }
 
 // Print the input program "prettily"
@@ -245,10 +262,14 @@ fn main()
 
     // Allow manual testing
     else {
-        path = String::from("cases/week1/valid/return_0.c");
+        path = String::from("cases/week1/valid/return_2.c");
     }
 
     let p = parse(lex(path));
 
-    pretty_print(p);
+    match produce_assembly(p) {
+        Ok(_) => (),
+        Err(_) => (),
+    }
+
 }
