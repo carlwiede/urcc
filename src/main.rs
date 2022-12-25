@@ -2,6 +2,8 @@ use std::{fs, process, env, io::Write};
 use core::slice::Iter;
 use regex::Regex;
 
+static mut DEBUG: bool = false;
+
 // Enum to represent the different types of tokens
 #[derive(Debug, Clone)]
 enum Token {
@@ -149,8 +151,11 @@ fn parse(tokens: Vec<Token>) -> Prog
     let t: Iter<Token> = tokens.iter();
     let p: Prog = parse_program(t);
     
-    // Debug
-    println!("{:?}", p);
+    unsafe {
+        if DEBUG {
+            println!("After parse: {:?}", p);
+        }
+    }
 
     p
 }
@@ -209,8 +214,11 @@ fn lex(file_path: String) -> Vec<Token>
         }
     }
 
-    // Debug print
-    println!("{:?}", tokens);
+    unsafe {
+        if DEBUG {
+            println!("After lex: {:?}", tokens);
+        }
+    }
 
     return tokens;
 
@@ -234,6 +242,7 @@ fn produce_assembly(p: Prog) -> std::io::Result<()>
 }
 
 // Print the input program "prettily"
+#[allow(dead_code)]
 fn pretty_print(p: Prog)
 {
     println!("Pretty printing {:?} ...\n", p);
@@ -253,16 +262,32 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let path: String;
+    let mut path: String = String::from("cases/week1/valid/return_2.c");
+    let args: Vec<String> = env::args().collect();
 
     // Not so robust argument reading to automate testing
-    if env::args().len() > 1 {
-        path = env::args().last().unwrap();
-    }
-
-    // Allow manual testing
-    else {
-        path = String::from("cases/week1/valid/return_2.c");
+    // Last argument is always the path
+    match args.len() {
+        1 => (),
+        2 => {
+            if args.contains(&String::from("debug")) {
+                unsafe {
+                    DEBUG = true;
+                }
+            } else {
+                path = args[args.len()-1].clone();
+            }
+        },
+        3 => {
+            unsafe {
+                DEBUG = true;
+            }
+            path = args[args.len()-1].clone();
+        },
+        _ => {
+            println!("Invalid argument setup, aborting...");
+            process::exit(1);
+        },
     }
 
     let p = parse(lex(path));
