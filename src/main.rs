@@ -144,11 +144,15 @@ fn parse_program(t: Iter<Token>) -> Prog
 
 // Accept a list of tokens
 // Return AST
-fn parse(tokens: Vec<Token>)
+fn parse(tokens: Vec<Token>) -> Prog
 {
     let t: Iter<Token> = tokens.iter();
     let p: Prog = parse_program(t);
-    println!("{:?}", p);
+    
+    // Debug
+    // println!("{:?}", p);
+
+    p
 }
 
 // Accept a file
@@ -212,6 +216,23 @@ fn lex(file_path: String) -> Vec<Token>
 
 }
 
+// Print the input program "prettily"
+fn pretty_print(p: Prog)
+{
+    println!("Pretty printing {:?} ...\n", p);
+
+    let Prog::Prog(f) = p;
+    let Func::Func(f_name, stmt) = f;
+    let Stmt::Return(expr) = stmt;
+    let Expr::IntLiteral(ret_val) = expr;
+
+    println!("FUN INT {}:", f_name);
+    println!("\tparams: ()");
+    println!("\tbody:");
+    println!("\t\tRETURN Int<{}>", ret_val);
+   
+}
+
 fn main() 
 {
 
@@ -224,9 +245,10 @@ fn main()
 
     // Allow manual testing
     else {
-        path = String::from("cases/week1/valid/return_2.c");
+        path = String::from("cases/week1/valid/return_0.c");
     }
 
-    parse(lex(path));
+    let p = parse(lex(path));
 
+    pretty_print(p);
 }
