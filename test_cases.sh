@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# test_cases.sh
+# Test if all C source files from a specific week compiles
+
 # Select which week you want to test against (e.g. './test_cases.sh week1')
 # All valid cases should exit with code 0
 # All invalid cases should exit with code 1
