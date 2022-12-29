@@ -291,6 +291,19 @@ fn main()
         },
     }
 
+    // Get application name from path, don't ask
+    let app_name: String = String::from( 
+                         path.clone()
+                             .split("/")
+                             .collect::<Vec<&str>>()
+                             .iter()
+                             .rev()
+                             .copied()
+                             .collect::<Vec<&str>>()[0]
+                             .split(".")
+                             .collect::<Vec<&str>>()[0]
+    );
+
     let p = parse(lex(path));
 
     // Produce the assembly
@@ -306,7 +319,7 @@ fn main()
     process::Command::new("gcc")
                      .arg(ass_f.clone())
                      .arg("-o")
-                     .arg("out.exe")
+                     .arg(app_name+".exe")
                      .output()
                      .expect("failed to run gcc on assembly file");
 
