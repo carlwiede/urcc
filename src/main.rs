@@ -262,7 +262,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("cases/week1/valid/return_2.c");
+    let mut path: String = String::from("cases/week1/valid/multi_digit.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
@@ -307,25 +307,10 @@ fn main()
                      .arg(ass_f.clone())
                      .arg("-o")
                      .arg("out.exe")
-                     .spawn()
+                     .output()
                      .expect("failed to run gcc on assembly file");
 
-
-    println!("seasons greetings");
-
-    //use std::{thread, time};
-    //let ten_millis = time::Duration::from_millis(1000);                 
-    //thread::sleep(ten_millis);
-
     // Delete assembly file
-    loop {
-        match fs::metadata(ass_f.clone()) {
-            Ok(_) => {
-                fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
-                break;
-            },
-            Err(e) => println!("{:?}", e.kind()),
-        }
-    }
+    fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
 
 }
