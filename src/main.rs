@@ -225,14 +225,14 @@ fn lex(file_path: String) -> Vec<Token>
 }
 
 // Produce x86 assembly from the program
-fn produce_assembly(p: Prog) -> std::io::Result<()>
+fn produce_assembly(p: Prog, ass_f: String) -> std::io::Result<()>
 {
     let Prog::Prog(f) = p;
     let Func::Func(f_name, stmt) = f;
     let Stmt::Return(expr) = stmt;
     let Expr::IntLiteral(ret_val) = expr;
 
-    let mut file = fs::File::create("assembly.s")?;
+    let mut file = fs::File::create(ass_f)?;
     file.write_all(format!(".globl {f_name}\n").as_bytes()).expect("Failed to write .globl");
     file.write_all(format!("{f_name}:\n").as_bytes()).expect("Failed to write identifier");
     file.write_all(format!("\tmov\t${ret_val}, %rax\n").as_bytes()).expect("Failed to write movl");
@@ -264,6 +264,7 @@ fn main()
 
     let mut path: String = String::from("cases/week1/valid/return_2.c");
     let args: Vec<String> = env::args().collect();
+    let ass_f: String = String::from("assembly.s");
 
     // Not so robust argument reading to automate testing
     // Last argument is always the path
@@ -292,9 +293,39 @@ fn main()
 
     let p = parse(lex(path));
 
-    match produce_assembly(p) {
+    // Produce the assembly
+    match produce_assembly(p, ass_f.clone()) {
         Ok(_) => (),
-        Err(_) => (),
+        _ => {
+            println!("Failed to produce assembly file!");
+            process::exit(1);
+        },
+    }
+
+    // Produce binary
+    process::Command::new("gcc")
+                     .arg(ass_f.clone())
+                     .arg("-o")
+                     .arg("out.exe")
+                     .spawn()
+                     .expect("failed to run gcc on assembly file");
+
+
+    println!("seasons greetings");
+
+    //use std::{thread, time};
+    //let ten_millis = time::Duration::from_millis(1000);                 
+    //thread::sleep(ten_millis);
+
+    // Delete assembly file
+    loop {
+        match fs::metadata(ass_f.clone()) {
+            Ok(_) => {
+                fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
+                break;
+            },
+            Err(e) => println!("{:?}", e.kind()),
+        }
     }
 
 }
