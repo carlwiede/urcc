@@ -262,7 +262,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("cases/week1/valid/multi_digit.c");
+    let mut path: String = String::from("stages/stage_1/valid/multi_digit.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
