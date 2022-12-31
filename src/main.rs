@@ -15,6 +15,9 @@ enum Token {
     Keyword (String),
     Identifier (String),
     IntegerLiteral (u32),
+    Negation,
+    BitComp,
+    LogNeg,
 }
 
 // Enums to represent nodes in an Abstract Syntax Tree (AST)
@@ -210,6 +213,9 @@ fn lex(file_path: String) -> Vec<Token>
             '}' => tokens.push(Token::CloseBrace),
             '(' => tokens.push(Token::OpenParenthesis),
             ')' => tokens.push(Token::CloseParenthesis),
+            '-' => tokens.push(Token::Negation),
+            '~' => tokens.push(Token::BitComp),
+            '!' => tokens.push(Token::LogNeg),
             _ => buffer.push(c),
         }
     }
@@ -262,7 +268,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("stages/stage_1/valid/multi_digit.c");
+    let mut path: String = String::from("stages/stage_2/valid/nested_ops.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
