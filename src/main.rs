@@ -4,6 +4,13 @@ use regex::Regex;
 
 static mut DEBUG: bool = false;
 
+#[derive(Debug, Clone, Copy)]
+enum UnaryOp {
+    Negation,
+    BitComp,
+    LogNeg
+}
+
 // Enum to represent the different types of tokens
 #[derive(Debug, Clone)]
 enum Token {
@@ -14,16 +21,15 @@ enum Token {
     Semicolon,
     Keyword (String),
     Identifier (String),
-    IntegerLiteral (u32),
-    Negation,
-    BitComp,
-    LogNeg,
+    IntLiteral (u32),
+    UnaryOp(UnaryOp),
 }
 
 // Enums to represent nodes in an Abstract Syntax Tree (AST)
 #[derive(Debug)]
 enum Expr {
     IntLiteral(u32),
+    UnaryOp(UnaryOp, Box<Expr>)
 }
 
 #[derive(Debug)]
@@ -44,9 +50,13 @@ enum Prog {
 fn parse_expr(mut t: Iter<Token>) -> (Iter<Token>, Expr)
 {
     match t.next() {
-        Some(Token::IntegerLiteral(val)) => return (t, Expr::IntLiteral(*val)),
+        Some(Token::IntLiteral(val)) => return (t, Expr::IntLiteral(*val)),
+        Some(Token::UnaryOp(op)) => {
+            let (t, expr) = parse_expr(t);
+            return (t, Expr::UnaryOp(*op, Box::new(expr)));
+        },
         _ => {
-            println!("parse_expr didn't receive an integer literal, exiting...");
+            println!("parse_expr didn't receive an integer literal or unary operator, exiting...");
             process::exit(1);
         },
     }
@@ -195,7 +205,7 @@ fn lex(file_path: String) -> Vec<Token>
             
             // Buffer contains a number
             else if !buffer.parse::<u32>().is_err() {
-                tokens.push(Token::IntegerLiteral(buffer.parse::<u32>().unwrap()));
+                tokens.push(Token::IntLiteral(buffer.parse::<u32>().unwrap()));
             } 
             
             // Buffer contains an identifier
@@ -213,9 +223,9 @@ fn lex(file_path: String) -> Vec<Token>
             '}' => tokens.push(Token::CloseBrace),
             '(' => tokens.push(Token::OpenParenthesis),
             ')' => tokens.push(Token::CloseParenthesis),
-            '-' => tokens.push(Token::Negation),
-            '~' => tokens.push(Token::BitComp),
-            '!' => tokens.push(Token::LogNeg),
+            '-' => tokens.push(Token::UnaryOp(UnaryOp::Negation)),
+            '~' => tokens.push(Token::UnaryOp(UnaryOp::BitComp)),
+            '!' => tokens.push(Token::UnaryOp(UnaryOp::LogNeg)),
             _ => buffer.push(c),
         }
     }
@@ -236,7 +246,8 @@ fn produce_assembly(p: Prog, ass_f: String) -> std::io::Result<()>
     let Prog::Prog(f) = p;
     let Func::Func(f_name, stmt) = f;
     let Stmt::Return(expr) = stmt;
-    let Expr::IntLiteral(ret_val) = expr;
+
+    let Expr::IntLiteral(ret_val) = expr else {todo!()};
 
     let mut file = fs::File::create(ass_f)?;
     file.write_all(format!(".globl {f_name}\n").as_bytes()).expect("Failed to write .globl");
@@ -256,7 +267,7 @@ fn pretty_print(p: Prog)
     let Prog::Prog(f) = p;
     let Func::Func(f_name, stmt) = f;
     let Stmt::Return(expr) = stmt;
-    let Expr::IntLiteral(ret_val) = expr;
+    let Expr::IntLiteral(ret_val) = expr else {todo!()};
 
     println!("FUN INT {}:", f_name);
     println!("\tparams: ()");
@@ -268,7 +279,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("stages/stage_2/valid/nested_ops.c");
+    let mut path: String = String::from("stages/stage_2/valid/bitwise.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
