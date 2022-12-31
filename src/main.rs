@@ -14,13 +14,13 @@ enum Token {
     Semicolon,
     Keyword (String),
     Identifier (String),
-    IntegerLiteral (i64),
+    IntegerLiteral (u32),
 }
 
 // Enums to represent nodes in an Abstract Syntax Tree (AST)
 #[derive(Debug)]
 enum Expr {
-    IntLiteral(i64),
+    IntLiteral(u32),
 }
 
 #[derive(Debug)]
@@ -191,8 +191,8 @@ fn lex(file_path: String) -> Vec<Token>
             } 
             
             // Buffer contains a number
-            else if !buffer.parse::<i64>().is_err() {
-                tokens.push(Token::IntegerLiteral(buffer.parse::<i64>().unwrap()));
+            else if !buffer.parse::<u32>().is_err() {
+                tokens.push(Token::IntegerLiteral(buffer.parse::<u32>().unwrap()));
             } 
             
             // Buffer contains an identifier
