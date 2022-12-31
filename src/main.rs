@@ -56,8 +56,8 @@ fn parse_expr(mut t: Iter<Token>) -> (Iter<Token>, Expr)
             return (t, Expr::UnaryOp(*op, Box::new(expr)));
         },
         _ => {
-            println!("parse_expr didn't receive an integer literal or unary operator, exiting...");
-            process::exit(1);
+            parse_error("parse_expr didn't receive an integer literal or unary operator, exiting...");
+            process::exit(1);   // Left to avoid compiler complaints :x
         },
     }
 }
@@ -66,25 +66,16 @@ fn parse_statement(mut t: Iter<Token>) -> (Iter<Token>, Stmt)
 {
     match t.next() {
         Some(Token::Keyword(val)) => {
-            if val != "return" {
-                println!("expected keyword 'return', but found something else");
-                process::exit(1);  
-            }
+            if val != "return" { parse_error("expected keyword 'return', but found something else") }
         },
-        _ => {
-            println!("expected keyword 'int', but found something else");
-            process::exit(1);  
-        }
+        _ => parse_error("expected keyword 'int', but found something else"),
     }
 
     let (mut t, expr) = parse_expr(t);
 
     match t.next() {
         Some(Token::Semicolon) => (),
-        _ => {
-            println!("expected semicolon, but found something else");
-            process::exit(1);  
-        }
+        _ => parse_error("expected semicolon, found somethin else"),
     }
 
     return (t, Stmt::Return(expr));
@@ -96,57 +87,39 @@ fn parse_function(mut t: Iter<Token>) -> Func
     
     match t.next() {
         Some(Token::Keyword(val)) => {
-            if val != "int" {
-                println!("expected keyword 'int', but found something else");
-                process::exit(1);  
-            };
+            if val != "int" { parse_error("expected keyword 'int', but found something else") }
         },
-        _ => {
-            println!("expected keyword 'int', but found something else");
-            process::exit(1);
-        },
+        _ => parse_error("expected keyword 'int', but found something else"),
     }
 
     match t.next() {
         Some(Token::Identifier(val)) => fn_name = val.to_string(),
         _ => {
-            println!("expected function identifier, but found something else");
-            process::exit(1);
+            parse_error("expected function identifier, but found something else");
+            process::exit(1); // Left here to avoid compiler complaints x)
         }
     }
 
     match t.next() {
         Some(Token::OpenParenthesis) => (),
-        _ => {
-            println!("expected open parenthesis, but found something else");
-            process::exit(1);
-        }
+        _ => parse_error("expected open parenthesis, but found something else"),
     }
 
     match t.next() {
         Some(Token::CloseParenthesis) => (),
-        _ => {
-            println!("expected close parenthesis, but found something else");
-            process::exit(1);
-        }
+        _ => parse_error("expected close parenthesis, but found something else"),
     }
 
     match t.next() {
         Some(Token::OpenBrace) => (),
-        _ => {
-            println!("expected open brace, but found something else");
-            process::exit(1);
-        }
+        _ => parse_error("expected open brace, but found something else"),
     }
 
     let (mut t, stmt) = parse_statement(t);
 
     match t.next() {
         Some(Token::CloseBrace) => (),
-        _ => {
-            println!("expected close brace, but found something else");
-            process::exit(1);
-        }
+        _ => parse_error("expected close brace, but found something else"),
     }
 
     return Func::Func(fn_name, stmt);
@@ -171,6 +144,12 @@ fn parse(tokens: Vec<Token>) -> Prog
     }
 
     p
+}
+
+fn parse_error(err_msg: &str)
+{
+    println!("PARSE ERROR: {}", err_msg);
+    process::exit(1);
 }
 
 // Accept a file
@@ -279,7 +258,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("stages/stage_2/valid/bitwise.c");
+    let mut path: String = String::from("stages/stage_2/invalid/missing_semicolon.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
