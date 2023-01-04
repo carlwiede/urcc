@@ -258,6 +258,10 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
+    // TODO:    Finish week2
+    //          Implement Token as struct instead of Enum
+    //          Keep a dictionary of keywords instead of hardcoded
+
     let mut path: String = String::from("stages/stage_2/invalid/missing_semicolon.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
