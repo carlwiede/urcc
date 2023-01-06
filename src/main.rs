@@ -161,6 +161,11 @@ fn lex(file_path: String) -> Vec<Token>
     let content = fs::read_to_string(file_path)
         .expect("Could not read file.");
 
+    // Define keywords in vector
+    let mut keywords = Vec::new();
+    keywords.push(String::from("int"));
+    keywords.push(String::from("return"));
+
     // Create buffer for storing intermediate tokens (for identifiers, keywords and values)
     let mut buffer: String = String::new();
 
@@ -177,8 +182,7 @@ fn lex(file_path: String) -> Vec<Token>
         if !a_z_num_re.is_match(&c.to_string()) && !buffer.is_empty() {
             
             // Buffer contains a keyword
-            if buffer == "int"
-            || buffer == "return" {
+            if keywords.contains(&buffer) {
                 tokens.push(Token::Keyword(buffer.clone()));
             } 
             
@@ -260,9 +264,8 @@ fn main()
 
     // TODO:    Finish week2
     //          Implement Token as struct instead of Enum
-    //          Keep a dictionary of keywords instead of hardcoded
 
-    let mut path: String = String::from("stages/stage_2/invalid/missing_semicolon.c");
+    let mut path: String = String::from("stages/stage_2/valid/bitwise.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
