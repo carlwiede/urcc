@@ -229,13 +229,38 @@ fn produce_assembly(p: Prog, ass_f: String) -> std::io::Result<()>
     let Prog::Prog(f) = p;
     let Func::Func(f_name, stmt) = f;
     let Stmt::Return(expr) = stmt;
-
-    let Expr::IntLiteral(ret_val) = expr else {todo!()};
-
+    
     let mut file = fs::File::create(ass_f)?;
     file.write_all(format!(".globl {f_name}\n").as_bytes()).expect("Failed to write .globl");
     file.write_all(format!("{f_name}:\n").as_bytes()).expect("Failed to write identifier");
-    file.write_all(format!("\tmov\t${ret_val}, %rax\n").as_bytes()).expect("Failed to write movl");
+    
+    // Interpret the return value and its (possible) unary operators
+    let mut next_expr = expr;
+    let mut op_stack = Vec::new(); 
+    loop {
+        match next_expr {
+            Expr::UnaryOp(op, exp) => {
+                op_stack.push(op);
+                next_expr = *exp;
+            },
+            Expr::IntLiteral(ret_val) => {
+                file.write_all(format!("\tmov\t${ret_val}, %rax\n").as_bytes()).expect("Failed to write mov");
+                break;
+            },
+        }
+    }
+
+    // Iterate over op stack and write to assembly
+    loop {
+        match op_stack.pop() {
+            Some(UnaryOp::Negation) => file.write_all(format!("\tneg\t%rax\n").as_bytes()).expect("Failed to write neg"),
+            Some(UnaryOp::BitComp) => file.write_all(format!("\tnot\t%rax\n").as_bytes()).expect("Failed to write mov"),
+            Some(UnaryOp::LogNeg) => todo!(),
+            _ => break, 
+        }
+    }
+
+    // Return
     file.write_all(format!("\tret\n").as_bytes()).expect("Failed to write ret");
 
     Ok(())
@@ -265,7 +290,7 @@ fn main()
     // TODO:    Finish week2
     //          Implement Token as struct instead of Enum
 
-    let mut path: String = String::from("stages/stage_2/valid/bitwise.c");
+    let mut path: String = String::from("stages/stage_2/valid/nested_ops.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
@@ -327,6 +352,6 @@ fn main()
                      .expect("failed to run gcc on assembly file");
 
     // Delete assembly file
-    fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
+    //fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
 
 }
