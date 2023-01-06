@@ -250,13 +250,17 @@ fn produce_assembly(p: Prog, ass_f: String) -> std::io::Result<()>
         }
     }
 
-    // Iterate over op stack and write to assembly
+    // Iterate over unary operation stack and write to assembly
     loop {
         match op_stack.pop() {
             Some(UnaryOp::Negation) => file.write_all(format!("\tneg\t%rax\n").as_bytes()).expect("Failed to write neg"),
-            Some(UnaryOp::BitComp) => file.write_all(format!("\tnot\t%rax\n").as_bytes()).expect("Failed to write mov"),
-            Some(UnaryOp::LogNeg) => todo!(),
-            _ => break, 
+            Some(UnaryOp::BitComp) => file.write_all(format!("\tnot\t%rax\n").as_bytes()).expect("Failed to write not"),
+            Some(UnaryOp::LogNeg) => {
+                file.write_all(format!("\tcmp\t$0, %rax\n").as_bytes()).expect("Failed to write cmp");
+                file.write_all(format!("\tmov\t$0, %rax\n").as_bytes()).expect("Failed to write mov");
+                file.write_all(format!("\tsete\t%al\n").as_bytes()).expect("Failed to write sete");
+            },
+            None => break, 
         }
     }
 
@@ -290,7 +294,7 @@ fn main()
     // TODO:    Finish week2
     //          Implement Token as struct instead of Enum
 
-    let mut path: String = String::from("stages/stage_2/valid/nested_ops.c");
+    let mut path: String = String::from("stages/stage_2/valid/not_zero.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
@@ -320,17 +324,21 @@ fn main()
     }
 
     // Get application name from path, don't ask
-    let app_name: String = String::from( 
-                         path.clone()
-                             .split("/")
-                             .collect::<Vec<&str>>()
-                             .iter()
-                             .rev()
-                             .copied()
-                             .collect::<Vec<&str>>()[0]
-                             .split(".")
-                             .collect::<Vec<&str>>()[0]
-    );
+    let app_binding = path.clone();
+    let app_name= app_binding
+                            .split("/")
+                            .collect::<Vec<&str>>()
+                            .iter()
+                            .rev()
+                            .copied()
+                            .collect::<Vec<&str>>()[0]
+                            .split(".")
+                            .collect::<Vec<&str>>()[0];
+
+    // Also get directory name from path, here we go
+    let mut dir_parts = path.split("/").collect::<Vec<&str>>();
+    let _ = dir_parts.pop();
+    let dir_name: String = String::from(dir_parts.join("/")+"/");
 
     let p = parse(lex(path));
 
@@ -347,7 +355,7 @@ fn main()
     process::Command::new("gcc")
                      .arg(ass_f.clone())
                      .arg("-o")
-                     .arg(app_name+".exe")
+                     .arg(dir_name+app_name+".exe")
                      .output()
                      .expect("failed to run gcc on assembly file");
 
