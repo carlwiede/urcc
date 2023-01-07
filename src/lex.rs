@@ -57,9 +57,12 @@ pub fn lex(file_path: String) -> Vec<Token>
             '}' => tokens.push(Token::CloseBrace),
             '(' => tokens.push(Token::OpenParenthesis),
             ')' => tokens.push(Token::CloseParenthesis),
-            '-' => tokens.push(Token::UnaryOp(UnaryOp::Negation)),
-            '~' => tokens.push(Token::UnaryOp(UnaryOp::BitComp)),
-            '!' => tokens.push(Token::UnaryOp(UnaryOp::LogNeg)),
+            '-' => tokens.push(Token::Minus),
+            '+' => tokens.push(Token::Plus),
+            '*' => tokens.push(Token::Multiplication),
+            '/' => tokens.push(Token::Division),
+            '~' => tokens.push(Token::BitComp),
+            '!' => tokens.push(Token::LogNeg),
             _ => buffer.push(c),
         }
     }

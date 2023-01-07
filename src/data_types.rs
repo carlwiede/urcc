@@ -9,10 +9,10 @@ pub enum Token {
     Keyword (String),
     Identifier (String),
     IntLiteral (u32),
-    Minus,
     BitComp,
     LogNeg,
-    Addition,
+    Minus,
+    Plus,
     Multiplication,
     Division,
 }
