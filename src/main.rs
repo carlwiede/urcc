@@ -74,7 +74,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("./stages/stage_2/valid/not_zero.c");
+    let mut path: String = String::from("./stages/stage_3/valid/associativity.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
