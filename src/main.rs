@@ -5,8 +5,6 @@ mod data_types;
 mod parse;
 use data_types::*;
 
-static mut DEBUG: bool = false;
-
 // Produce x86 assembly from the program
 fn produce_assembly(p: Prog, ass_f: String) -> std::io::Result<()>
 {
@@ -83,25 +81,11 @@ fn main()
     // Last argument is always the path
     match args.len() {
         1 => (),
-        2 => {
-            if args.contains(&String::from("debug")) {
-                unsafe {
-                    DEBUG = true;
-                }
-            } else {
-                path = args[args.len()-1].clone();
-            }
-        },
-        3 => {
-            unsafe {
-                DEBUG = true;
-            }
-            path = args[args.len()-1].clone();
-        },
+        2 => path = args[args.len()-1].clone(),
         _ => {
-            println!("Invalid argument setup, aborting...");
+            println!("Only one argument supported, which is C source file location!");
             process::exit(1);
-        },
+        }
     }
 
     let p = parse::parse(lex::lex(path.clone()));
