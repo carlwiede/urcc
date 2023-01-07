@@ -73,7 +73,7 @@ fn pretty_print(p: Prog)
 fn main() 
 {
 
-    let mut path: String = String::from("stages/stage_2/valid/not_zero.c");
+    let mut path: String = String::from("./stages/stage_2/valid/not_zero.c");
     let args: Vec<String> = env::args().collect();
     let ass_f: String = String::from("assembly.s");
 
@@ -100,8 +100,13 @@ fn main()
     }
 
     // Produce final name (location) of binary
-    let binary_name = String::from(path.split(".").collect::<Vec<&str>>()[0])+".exe";
-
+    // Not the prettiest, but since the input "must" be
+    // a C file, this would give a .exe file in the
+    // exact same location
+    path.pop();
+    path.pop();
+    let binary_name = String::from(path+".exe");
+    
     // Produce binary
     process::Command::new("gcc")
                      .arg(ass_f.clone())

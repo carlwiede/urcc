@@ -27,7 +27,7 @@ test_not_implemented () {
 }
 
 run_our_program () {
-    actual_out=`./$1 2>/dev/null`
+    actual_out=`$1 2>/dev/null`
     actual_exit_code=$?
     rm $1 2>/dev/null
 }
@@ -40,6 +40,10 @@ run_correct_program () {
 
 compare_program_results () {
     # make sure exit code is correct
+    # echo "expected code $expected_exit_code"
+    # echo "got code $actual_exit_code"
+    # echo "expected out $expected_out"
+    # echo "got out $actual_out"
     if [ "$expected_exit_code" -ne "$actual_exit_code" ] || [ "$expected_out" != "$actual_out" ]
     then
         test_failure
