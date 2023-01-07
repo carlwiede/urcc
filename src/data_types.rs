@@ -17,6 +17,10 @@ pub enum Token {
     Identifier (String),
     IntLiteral (u32),
     UnaryOp(UnaryOp),
+    Subtraction,
+    Addition,
+    Multiplication,
+    Division,
 }
 
 // Enums to represent nodes in an Abstract Syntax Tree (AST)
