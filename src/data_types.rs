@@ -1,10 +1,3 @@
-#[derive(Debug, Clone, Copy)]
-pub enum UnaryOp {
-    Negation,
-    BitComp,
-    LogNeg
-}
-
 // Enum to represent the different types of tokens
 #[derive(Debug, Clone)]
 pub enum Token {
@@ -16,11 +9,19 @@ pub enum Token {
     Keyword (String),
     Identifier (String),
     IntLiteral (u32),
-    UnaryOp(UnaryOp),
-    Subtraction,
+    Minus,
+    BitComp,
+    LogNeg,
     Addition,
     Multiplication,
     Division,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum UnaryOp {
+    Negation,
+    BitComp,
+    LogNeg
 }
 
 // Enums to represent nodes in an Abstract Syntax Tree (AST)
