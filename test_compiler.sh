@@ -59,7 +59,7 @@ test_stage () {
         gcc -w $prog
         run_correct_program
 
-        base="${prog%.*}.exe" #name of executable (filename w/out extension)
+        base="${prog%.*}.exe" #name of executable (with relative directory & extension)
         test_name="${base##*valid/}"
 
         print_test_name $test_name
@@ -88,7 +88,7 @@ test_stage () {
 
         run_correct_program
 
-        base="${dir%.*}.exe" #name of executable (directory w/out extension)
+        base="${dir%.*}.exe" #name of executable (with relative directory & extension)
         test_name="${base##*valid_multifile/}"
 
         # need to explicitly specify output name
@@ -104,7 +104,7 @@ test_stage () {
     echo "===================Invalid Programs================="
     for prog in `ls stages/stage_$1/invalid/{,**/}*.c 2>/dev/null`; do
 
-        base="${prog%.*}.exe" #name of executable (filename w/out extension)
+        base="${prog%.*}.exe" #name of executable (with relative directory & extension)
         test_name="${base##*invalid/}"
 
         $cmp $prog >/dev/null 2>&1
