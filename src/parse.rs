@@ -19,10 +19,18 @@ fn parse_expr(mut t: Iter<Token>) -> (Iter<Token>, Expr)
 {
     match t.next() {
         Some(Token::IntLiteral(val)) => return (t, Expr::IntLiteral(*val)),
-        Some(Token::UnaryOp(op)) => {
+        Some(Token::Minus) => {
             let (t, expr) = parse_expr(t);
-            return (t, Expr::UnaryOp(*op, Box::new(expr)));
+            return (t, Expr::UnaryOp(UnaryOp::Negation, Box::new(expr)));
         },
+        Some(Token::BitComp) => {
+            let (t, expr) = parse_expr(t);
+            return (t, Expr::UnaryOp(UnaryOp::BitComp, Box::new(expr)));
+        },
+        Some(Token::LogNeg) => {
+            let (t, expr) = parse_expr(t);
+            return (t, Expr::UnaryOp(UnaryOp::LogNeg, Box::new(expr)));
+        }
         _ => {
             parse_error("parse_expr didn't receive an integer literal or unary operator, exiting...");
             process::exit(1);   // Left to avoid compiler complaints :x
