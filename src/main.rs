@@ -53,6 +53,7 @@ fn produce_assembly(p: Prog, ass_f: String) -> std::io::Result<()>
 }
 
 // Print the input program "prettily"
+// (deprecated at the moment)
 #[allow(dead_code)]
 fn pretty_print(p: Prog)
 {
