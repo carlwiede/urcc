@@ -323,24 +323,7 @@ fn main()
         },
     }
 
-    // Get application name from path, don't ask
-    let app_binding = path.clone();
-    let app_name= app_binding
-                            .split("/")
-                            .collect::<Vec<&str>>()
-                            .iter()
-                            .rev()
-                            .copied()
-                            .collect::<Vec<&str>>()[0]
-                            .split(".")
-                            .collect::<Vec<&str>>()[0];
-
-    // Also get directory name from path, here we go
-    let mut dir_parts = path.split("/").collect::<Vec<&str>>();
-    let _ = dir_parts.pop();
-    let dir_name: String = String::from(dir_parts.join("/")+"/");
-
-    let p = parse(lex(path));
+    let p = parse(lex(path.clone()));
 
     // Produce the assembly
     match produce_assembly(p, ass_f.clone()) {
@@ -351,15 +334,18 @@ fn main()
         },
     }
 
+    // Produce final name (location) of binary
+    let binary_name = String::from(path.split(".").collect::<Vec<&str>>()[0])+".exe";
+
     // Produce binary
     process::Command::new("gcc")
                      .arg(ass_f.clone())
                      .arg("-o")
-                     .arg(dir_name+app_name+".exe")
+                     .arg(binary_name)
                      .output()
                      .expect("failed to run gcc on assembly file");
 
     // Delete assembly file
-    //fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
+    fs::remove_file(ass_f.clone()).expect("Failed to remove assembly file");
 
 }
