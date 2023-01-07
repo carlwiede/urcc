@@ -2,50 +2,10 @@ use std::{fs, process, env, io::Write};
 use core::slice::Iter;
 use regex::Regex;
 
+mod data_types;
+use data_types::{UnaryOp, Token, Expr, Stmt, Func, Prog};
+
 static mut DEBUG: bool = false;
-
-#[derive(Debug, Clone, Copy)]
-enum UnaryOp {
-    Negation,
-    BitComp,
-    LogNeg
-}
-
-// Enum to represent the different types of tokens
-#[derive(Debug, Clone)]
-enum Token {
-    OpenBrace,
-    CloseBrace,
-    OpenParenthesis,
-    CloseParenthesis,
-    Semicolon,
-    Keyword (String),
-    Identifier (String),
-    IntLiteral (u32),
-    UnaryOp(UnaryOp),
-}
-
-// Enums to represent nodes in an Abstract Syntax Tree (AST)
-#[derive(Debug)]
-enum Expr {
-    IntLiteral(u32),
-    UnaryOp(UnaryOp, Box<Expr>)
-}
-
-#[derive(Debug)]
-enum Stmt {
-    Return(Expr),
-}
-
-#[derive(Debug)]
-enum Func {
-    Func(String, Stmt),
-}
-
-#[derive(Debug)]
-enum Prog {
-    Prog(Func),
-}
 
 fn parse_expr(mut t: Iter<Token>) -> (Iter<Token>, Expr)
 {
@@ -290,9 +250,6 @@ fn pretty_print(p: Prog)
 
 fn main() 
 {
-
-    // TODO:    Finish week2
-    //          Implement Token as struct instead of Enum
 
     let mut path: String = String::from("stages/stage_2/valid/not_zero.c");
     let args: Vec<String> = env::args().collect();
